@@ -1,0 +1,54 @@
+services:
+  #server mysql
+  mysql_db:
+    image: mysql:8.0
+    container_name: mysql_db_container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - app-network
+
+  #GUI phpmyadmin
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin_container
+    restart: always
+    depends_on:
+      - mysql_db
+    environment:
+      PMA_HOST: mysql_db
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "8080:80"
+    networks:
+      - app-network
+
+  #web server php apache
+  web_server:
+    image: php:8.1-apache
+    container_name: apache_server_pusat
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ../:/var/www/html
+    networks:
+      - app-network
+    # Script otomatis untuk aktifkan .htaccess dan driver MySQL
+    entrypoint: >
+      sh -c "a2enmod rewrite && 
+             docker-php-ext-install pdo pdo_mysql && 
+             apache2-foreground"
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
