@@ -43,7 +43,7 @@ services:
     # Script otomatis untuk aktifkan .htaccess dan driver MySQL
     entrypoint: >
       sh -c "a2enmod rewrite && 
-             docker-php-ext-install pdo pdo_mysql && 
+             docker-php-ext-install pdo pdo_mysql mysqli && 
              apache2-foreground"
 
 networks:
